@@ -6,6 +6,9 @@ import android.os.Bundle
 import com.bumptech.glide.Glide
 import com.week2.minigame.databinding.ActivityMainBinding
 
+
+
+
 class MainActivity : AppCompatActivity() {
     private lateinit var binding : ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {

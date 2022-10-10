@@ -20,7 +20,8 @@ class PauseActivity : AppCompatActivity(){
         }
 
         exitbtn.setOnClickListener {
-            
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
     }
 }

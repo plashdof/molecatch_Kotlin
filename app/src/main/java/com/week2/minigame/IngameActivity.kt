@@ -1,6 +1,8 @@
 package com.week2.minigame
 
 import android.content.Intent
+import android.media.MediaPlayer
+import android.media.SoundPool
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
@@ -25,6 +27,9 @@ class IngameActivity : AppCompatActivity(){
     var sleeptime : Long = 0
     var progresstime : Long = 0
 
+    var mediaPlayer: MediaPlayer? = null
+    var musicstate = true
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,10 +37,17 @@ class IngameActivity : AppCompatActivity(){
 
         setContentView(binding.root)
 
+        mediaPlayer = MediaPlayer.create(this, R.raw.bgm)
+
         val pausebtn = binding.btnIngamePause
+        val musicbtn = binding.btnIngameMusic
         val scoretxt = binding.tvIngmaeScore
         val lifetxt = binding.tvIngmaeLife
         val level = binding.ivIngameLevel
+        val soundPool = SoundPool.Builder().build()
+
+        val hitsound = soundPool.load(this, R.raw.hitsound,1)
+        val levelupsound = soundPool.load(this, R.raw.levelupsound, 1)
 
         // 두더지 array
 
@@ -57,7 +69,7 @@ class IngameActivity : AppCompatActivity(){
 
             // 두더지 클릭시 이벤트처리
             moles[i].setOnClickListener {
-                
+                soundPool.play(hitsound, 1.0f, 1.0f, 0,0,1.0f)
                 // 두번클릭 안되게 방지
                 moles[i].isClickable = false
 
@@ -89,6 +101,7 @@ class IngameActivity : AppCompatActivity(){
                             .into(level)
 
                         progresstime += 20
+                        soundPool.play(levelupsound, 1.0f, 1.0f, 0,0,1.0f)
 
                     }
                     
@@ -107,18 +120,40 @@ class IngameActivity : AppCompatActivity(){
             startActivity(intent)
         }
 
+        musicbtn.setOnClickListener {
+            if(musicstate){
+                Glide.with(this)
+                    .load(R.drawable.soundoff)
+                    .into(musicbtn)
+                mediaPlayer?.pause()
+                musicstate = false
+            }else{
+                Glide.with(this)
+                    .load(R.drawable.soundon)
+                    .into(musicbtn)
+                mediaPlayer?.start()
+
+                musicstate =  true
+            }
+
+        }
+
     }
 
     override fun onResume() {
         super.onResume()
         pause = false
         gameThread()
+        musicstate = true
+        mediaPlayer?.start()
     }
 
 
     override fun onPause() {
         super.onPause()
         pause = true
+
+        mediaPlayer?.pause()
 
     }
 
@@ -257,6 +292,11 @@ class IngameActivity : AppCompatActivity(){
             }
 
         }.start()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer?.release()
     }
 
 }
