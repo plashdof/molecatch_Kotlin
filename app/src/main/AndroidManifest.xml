@@ -27,6 +27,17 @@
             android:screenOrientation="landscape">
 
         </activity>
+        <activity android:name=".PauseActivity"
+            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar"
+            android:screenOrientation="landscape">
+
+        </activity>
+
+        <activity android:name=".GameoverActivity"
+            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar"
+            android:screenOrientation="landscape">
+
+        </activity>
     </application>
 
 </manifest>
