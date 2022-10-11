@@ -118,7 +118,7 @@
                 android:src="@drawable/one"/>
 
             <ImageButton
-                android:id="@+id/btn_ingame_sword"
+                android:id="@+id/btn_ingame_hammer"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_marginTop="10dp"
@@ -332,6 +332,16 @@
 
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_ingame_levelupmodal"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/levelupmodal"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
