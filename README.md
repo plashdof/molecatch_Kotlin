@@ -17,7 +17,7 @@
 → theme 와 Manifest 파일을 통한 화면세팅
 
 <details>
-<summary> **멀티스레드 구성** </summary>
+<summary> 멀티스레드 구성 </summary>
 <div>
 게임진행 / 몬스터 생성&소멸 / 게임시간 / 레벨업
     
