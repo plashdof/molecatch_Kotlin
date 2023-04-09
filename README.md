@@ -21,157 +21,157 @@
 <div>
 게임진행 / 몬스터 생성&소멸 / 게임시간 / 레벨업
     
-    크게 4가지 스레드를 사용하였다.
-    
-    ### 1. 게임진행 스레드
-    
-    가장 큰 줄기의 스레드이며, 게임오버 조건을 판별하기위해 다른 스레드들을 감싸는 형태를 가진다. gameThread가 시작하기 전에, **레벨업을 알리는 레벨업 모달을 숨김처리한 상태로 시작**한다
-    
-    그후, **모든 스레드들을 동시에 실행시킴과 동시에, 게임오버 조건을 씌운 빈 while문**을 무한히 돌게 된다. 게임 오버 조건 달성시, while문을 탈출하여, GameoverActivity로 이동하게 된다!
-    
-    ```kotlin
-    private fun gameThread(){
-        val levelupmodal = binding.ivIngameLevelupmodal
-        levelupmodal.isVisible = false
-    
-        Thread(){
-            moleThreadDark()
-            moleThreadLong()
-            moleThreadMedium()
-            moleThreadShort()
-            rabbitThread()
-            timeThread()
-            levelupThread(levelupmodal)
-    
-            // 게임 종료조건 해당시 while문 탈출
-            while(life > 0 && time > 0){ }
-    
-            // 게임 Over
-            val intent = Intent(this, GameoverActivity::class.java)
-            startActivity(intent)
-    
-        }.start()
-    
-    }
-    ```
-    
-    ### 2. 게임시간 스레드
-    
-    해당 스레드는, 인게임 화면 상단에 위치한, 타임바에 대한 흐름이다.
-    
-    두더지를 잡을시 time은 증가하고, 가만히 있으면 time은 감소한다. 따라서 **time 값을 모든 스레드에서 접근 가능한 전역변수로 설정**하고, time스레드에서 progressbar에 띄우는 역할을 한다. 
-    
-    sleep 을 통해 0.2초마다 한번씩 1의 시간값이 줄어들게 하였고,  이 줄어드는 텀 또한, 레벨에따라 감소하게 하였다
-    
-    일시정지 버튼 클릭시, 스레드도 멈춰야하므로 while문 조건에 pause boolean 변수와 time 이 > 0일때만 진행되게 하였다
-    
-    ```kotlin
-    private fun timeThread(){
-        val timebar = binding.pbIngameTimebar
-    
-        Thread(){
-            while(time > 0 && !pause){
-                time -= 1
-    
-                runOnUiThread {
-                    timebar.progress = time
-                }
-    
-                Thread.sleep(200 - progresstime)
+크게 4가지 스레드를 사용하였다.
+
+### 1. 게임진행 스레드
+
+가장 큰 줄기의 스레드이며, 게임오버 조건을 판별하기위해 다른 스레드들을 감싸는 형태를 가진다. gameThread가 시작하기 전에, **레벨업을 알리는 레벨업 모달을 숨김처리한 상태로 시작**한다
+
+그후, **모든 스레드들을 동시에 실행시킴과 동시에, 게임오버 조건을 씌운 빈 while문**을 무한히 돌게 된다. 게임 오버 조건 달성시, while문을 탈출하여, GameoverActivity로 이동하게 된다!
+
+```kotlin
+private fun gameThread(){
+    val levelupmodal = binding.ivIngameLevelupmodal
+    levelupmodal.isVisible = false
+
+    Thread(){
+        moleThreadDark()
+        moleThreadLong()
+        moleThreadMedium()
+        moleThreadShort()
+        rabbitThread()
+        timeThread()
+        levelupThread(levelupmodal)
+
+        // 게임 종료조건 해당시 while문 탈출
+        while(life > 0 && time > 0){ }
+
+        // 게임 Over
+        val intent = Intent(this, GameoverActivity::class.java)
+        startActivity(intent)
+
+    }.start()
+
+}
+```
+
+### 2. 게임시간 스레드
+
+해당 스레드는, 인게임 화면 상단에 위치한, 타임바에 대한 흐름이다.
+
+두더지를 잡을시 time은 증가하고, 가만히 있으면 time은 감소한다. 따라서 **time 값을 모든 스레드에서 접근 가능한 전역변수로 설정**하고, time스레드에서 progressbar에 띄우는 역할을 한다. 
+
+sleep 을 통해 0.2초마다 한번씩 1의 시간값이 줄어들게 하였고,  이 줄어드는 텀 또한, 레벨에따라 감소하게 하였다
+
+일시정지 버튼 클릭시, 스레드도 멈춰야하므로 while문 조건에 pause boolean 변수와 time 이 > 0일때만 진행되게 하였다
+
+```kotlin
+private fun timeThread(){
+    val timebar = binding.pbIngameTimebar
+
+    Thread(){
+        while(time > 0 && !pause){
+            time -= 1
+
+            runOnUiThread {
+                timebar.progress = time
             }
-    
-        }.start()
-    }
-    ```
-    
-    ### 3. 레벨업 스레드
-    
-    내가 커스텀한 레벨업 조건은 score 값이 10,20,40,80,160,320 일때 이다.
-    
-    따라서, 해당 스레드에서는, score값을 while문을 돌며 계속 확인한후, **레벨업 조건에 부함하는 score값 도달시, levelup modal 창을 화면에 띄우게** 구현하였다
-    
-    ```kotlin
-    private fun levelupThread(levelupmodal : ImageView){
-    
-        Thread(){
-            while(true){
-                if(score == 10 || score == 20 || score == 40 || score == 80 || score == 160 || score == 320){
-    
-                    runOnUiThread {
-                        levelupmodal.isVisible = true
-                    }
-    
-                    Thread.sleep(500)
-    
-                    runOnUiThread {
-                        levelupmodal.isVisible = false
-                    }
-    
-                }
-            }
-        }.start()
-    }
-    ```
-    
-    ### 4. 몬스터 생성 & 소멸 스레드
-    
-    총 5가지의 몬스터들이 랜덤하게 화면에 나타난다. 
-    
-    느린두더지 / 중간두더지 / 빠른두더지 / 검은두더지 / 토끼
-    
-    각각 스레드에서 생성 & 소멸 흐름을 컨트롤하게 하였고, **전역변수로 설정해놓은 imageButton 배열로 랜덤한 숫자를 index로 활용하여 배치**할 수 있었다
-    
-    등장속도와 리젠속도는 Thread.sleep 으로 컨트롤하였다
-    
-    +) 두더지가 한곳에 곂쳐지는 현상 발생. 
-    
-    → 이를 방지하기 위해, 크기 12인 Int배열 생성. 구멍이 차있을때 1, 구멍이 비었을때 0 으로 표시. 만약 random 인덱스가 **차있는 구멍에 배정되면, while문을 돌면서 비어있는 구멍 탐색**!!
-    
-    ```kotlin
-    private fun moleThreadLong(){
-        Thread(){
-    
-            while(!pause){
-                
-                // 랜덤 인덱스 생성
-                var index = range.random()
-    
-    						// 구멍 이미 차있을때, 비어있는 구멍 찾는 로직
-                while(holestate[index] == 1){
-                    index = range.random()
-                }
-                
-                // 해당 인덱스에 해당하는 두더지상태 변경
-                molestate[index] = 0
-    
-    						// 해당 구멍 차있음 표시
-                holestate[index] = 1
-    
-                // 두더지 등장
+
+            Thread.sleep(200 - progresstime)
+        }
+
+    }.start()
+}
+```
+
+### 3. 레벨업 스레드
+
+내가 커스텀한 레벨업 조건은 score 값이 10,20,40,80,160,320 일때 이다.
+
+따라서, 해당 스레드에서는, score값을 while문을 돌며 계속 확인한후, **레벨업 조건에 부함하는 score값 도달시, levelup modal 창을 화면에 띄우게** 구현하였다
+
+```kotlin
+private fun levelupThread(levelupmodal : ImageView){
+
+    Thread(){
+        while(true){
+            if(score == 10 || score == 20 || score == 40 || score == 80 || score == 160 || score == 320){
+
                 runOnUiThread {
-                    Glide.with(this)
-                        .load(R.drawable.mole)
-                        .into(moles[index])
-                    moles[index].visibility = View.VISIBLE
+                    levelupmodal.isVisible = true
                 }
-    
-                Thread.sleep(1500 - sleeptime)
-    
-                // 두더지 퇴장
+
+                Thread.sleep(500)
+
                 runOnUiThread {
-                    moles[index].visibility = View.INVISIBLE
-                    moles[index].isClickable = true
+                    levelupmodal.isVisible = false
                 }
-    						
-    						// 다시 구멍 비었음 표시
-    						holestate[index] = 0
-    
-                Thread.sleep(1500 - sleeptime)
-    
+
             }
-        }.start()
-    }
-    ```
+        }
+    }.start()
+}
+```
+
+### 4. 몬스터 생성 & 소멸 스레드
+
+총 5가지의 몬스터들이 랜덤하게 화면에 나타난다. 
+
+느린두더지 / 중간두더지 / 빠른두더지 / 검은두더지 / 토끼
+
+각각 스레드에서 생성 & 소멸 흐름을 컨트롤하게 하였고, **전역변수로 설정해놓은 imageButton 배열로 랜덤한 숫자를 index로 활용하여 배치**할 수 있었다
+
+등장속도와 리젠속도는 Thread.sleep 으로 컨트롤하였다
+
++) 두더지가 한곳에 곂쳐지는 현상 발생. 
+
+→ 이를 방지하기 위해, 크기 12인 Int배열 생성. 구멍이 차있을때 1, 구멍이 비었을때 0 으로 표시. 만약 random 인덱스가 **차있는 구멍에 배정되면, while문을 돌면서 비어있는 구멍 탐색**!!
+
+```kotlin
+private fun moleThreadLong(){
+    Thread(){
+
+        while(!pause){
+
+            // 랜덤 인덱스 생성
+            var index = range.random()
+
+                        // 구멍 이미 차있을때, 비어있는 구멍 찾는 로직
+            while(holestate[index] == 1){
+                index = range.random()
+            }
+
+            // 해당 인덱스에 해당하는 두더지상태 변경
+            molestate[index] = 0
+
+                        // 해당 구멍 차있음 표시
+            holestate[index] = 1
+
+            // 두더지 등장
+            runOnUiThread {
+                Glide.with(this)
+                    .load(R.drawable.mole)
+                    .into(moles[index])
+                moles[index].visibility = View.VISIBLE
+            }
+
+            Thread.sleep(1500 - sleeptime)
+
+            // 두더지 퇴장
+            runOnUiThread {
+                moles[index].visibility = View.INVISIBLE
+                moles[index].isClickable = true
+            }
+
+                        // 다시 구멍 비었음 표시
+                        holestate[index] = 0
+
+            Thread.sleep(1500 - sleeptime)
+
+        }
+    }.start()
+}
+```
 </div>
 
 
