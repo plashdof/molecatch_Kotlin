@@ -18,7 +18,7 @@
 
 <details>
 <summary> 멀티스레드 구성 </summary>
-<div>
+
 게임진행 / 몬스터 생성&소멸 / 게임시간 / 레벨업
     
     크게 4가지 스레드를 사용하였다.
@@ -172,15 +172,11 @@
         }.start()
     }
     ```
-</div>
 
 </details>
-- **멀티스레드 구성**
     
-    
-    
-- **Time/Score/Level/LifeUI**
-    
+<details>
+    <summary>Time/Score/Level/LifeUI</summary>
     모든 ImageButton 들을 ViewBinding으로 호출한뒤, for문으로 클릭 이벤트 처리를 달아주었다. 몬스터를 클릭했을때의 이벤트 처리로, 많은 값들이 변경 또는 유지되어야 되기 때문에, 다소 로직이 복잡해졌다.
     
     **모든 몬스터의 공통사항)**
@@ -325,11 +321,12 @@
         }
     }
     ```
+</details>
     
-- **BGM & 효과음**
     
-    
-    우선 mp3파일은 어디에 위치시켜야 할까?
+ <details>
+     <summary>BGM & 효과음</summary>
+     우선 mp3파일은 어디에 위치시켜야 할까?
     
     → resource 폴더 하위에 raw 폴더를 생성한다. 이곳에 보관한다!!
     
@@ -403,10 +400,14 @@
     // 사운드 객체 재생
     soundPool.play(hitsound, 1.0f, 1.0f, 0,0,1.0f)
     ```
+     
+ </details>
     
-- **애니메이션**
-    
-    **→ TranslateAnimation 객체 활용**
+   
+ 
+  <details>
+      <summary>애니메이션</summary>
+      **→ TranslateAnimation 객체 활용**
     
     외부 프레임워크를 사용하는 것이 아닌, 애니메이션을 적용시킬 수 있는 자체적인 메소드나 클래스가 있을까 찾아본 결과, TranslateAnimation 객체를 활용하면, 간단한 좌표이동 애니메이션을 구현할 수 있다는 것을 알아내었다.
     
@@ -514,6 +515,11 @@
     ```
     
     https://user-images.githubusercontent.com/86242930/230774930-00cceb6e-a89e-48a1-9b54-09b73b8f4c75.mp4
+  </details>
+    
+    
+    
+    
     
 
 ## 게임설명
